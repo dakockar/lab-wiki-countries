@@ -1,25 +1,61 @@
-import logo from './logo.svg';
+import React, { Component } from 'react'
 import './App.css';
+import CountriesList from './components/CountriesList';
+import CountryDetails from './components/CountryDetails';
+import Navbar from "./components/Navbar.js";
+import axios from "axios";
+import { Route } from "react-router-dom";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+
+export default class App extends Component {
+
+  state = {
+    countries: []
+  }
+
+  componentDidMount() {
+    axios.get("https://restcountries.eu/rest/v2/all")
+      .then((response) => {
+        // console.log(response.data);
+        this.setState({
+          countries: response.data
+        })
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+  }
+
+
+
+  render() {
+    const { countries } = this.state;
+
+    return (
+      <div className="App">
+        <Navbar />
+        <div className="container">
+          <div className="row justify-content-start">
+            <div className="col">
+              <CountriesList countries={countries} />
+            </div>
+            <div className="col">
+              {/* I can't believe I managed to do this :D  */}
+              <Route
+                exact
+                path={`/:countryCode`}
+                render={routeProps => {
+                  return (
+                    <CountryDetails countries={countries} {...routeProps} />
+                  )
+                }
+                } />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 }
-
-export default App;
